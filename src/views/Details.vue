@@ -4,7 +4,7 @@
     <v-main>
       <v-container class="fill-width mt-12">
         <div>
-          <flipCountdown deadline="2020-08-01 20:15:00" @timeElapsed='timeElapsed()'></flipCountdown>
+          <flipCountdown deadline="2020-08-02 23:19:30" @timeElapsed='timeElapsed()'></flipCountdown>
         </div>
         <v-card class="mx-auto" max-width="600">
           <v-img
@@ -130,6 +130,9 @@
         store.dispatch('logout').then(
           () => this.$router.replace({path: '/login'})
         );
+      }
+      if (store.getters.username === 'admin') {
+        this.auctionEnded = true;
       }
       this.bidPrice = this.minimunPrice;
     },
