@@ -53,11 +53,11 @@
     },
     computed: {
       userOptions() {
-        const items = [{title: 'Logout', action:'logout'}];
+        const items = [{title: 'Home', action:'home'},];
         if (this.username === 'admin') {
-          items.unshift({title: 'Home', action:'home'});
           items.unshift({title: 'Admin Dashboard', action:'adminDashboard'});
         }
+        items.push({title: 'Logout', action:'logout'});
         return items;
       },
     },
