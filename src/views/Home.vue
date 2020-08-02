@@ -46,7 +46,7 @@
                     </v-card-title>
                     <v-card-actions>
                       <v-btn color="transparent" elevation="5" class="black--text ml-2" @click='openDetails(item.id)'>
-                        Bid Now
+                        {{btnText}}
                       </v-btn>
                       <h2 class='ml-2 black--text'>
                         ${{item.price}}
@@ -384,6 +384,11 @@
         const pagesNumber = Math.ceil(itemsSize/10);
         return pagesNumber;
       },
+      btnText() {
+        return store.getters.username === 'admin'
+          ? 'See details'
+          : 'Bid now';
+      }
     },
     methods: {
       orderByPrice() {
