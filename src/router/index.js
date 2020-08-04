@@ -15,22 +15,18 @@ const routes = [
   {
     path: '/home',
     name: 'Home',
-    component: () => import(/* webpackChunkName: "home" */ '../views/Home.vue')
+    component: () => import('../views/Home.vue')
   },
   {
     path: '/details/:id',
     name: 'Details',
     props: true,
-    component: () => import(/* webpackChunkName: "details" */ '../views/Details.vue')
+    component: () => import('../views/Details.vue')
   },
   {
     path: '/admin-dashboard',
     name: 'Admin',
-    // component: Admin,
-    // route level code-splitting
-    // this generates a separate chunk (admin.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "admin" */ '../views/Admin-dashboard.vue')
+    component: () => import('../views/Admin-dashboard.vue')
   },
   {path: '/404-not-found', component: NotFound},
   {path: '*', redirect: '/404-not-found'},
