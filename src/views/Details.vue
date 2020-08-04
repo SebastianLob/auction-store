@@ -4,7 +4,7 @@
     <v-main>
       <v-container class="fill-width mt-12">
         <div>
-          <flipCountdown deadline="2020-08-02 23:19:30" @timeElapsed='timeElapsed()'></flipCountdown>
+          <flipCountdown v-if='createClock' :deadline="auctionEndDateTime" @timeElapsed='timeElapsed()'></flipCountdown>
         </div>
         <v-card class="mx-auto" max-width="600">
           <v-img
@@ -40,7 +40,7 @@
                 <v-icon right>mdi-cart-outline</v-icon>
               </v-btn>
               <v-btn color="secondary" class="ma-2 white--text" outlined @click='showBidHistory = true'>
-                Show bids history
+                Show bid history
                 <v-icon right>mdi-history</v-icon>
               </v-btn>
             </v-row>
@@ -76,6 +76,7 @@
   import BidHistory from '@/components/Bid-history.vue'
   import Snackbar from '@/components/Snackbar.vue'
   import store from '@/store'
+  const axios = require('axios');
 
   export default {
     name: 'Details',
@@ -86,43 +87,17 @@
       Snackbar
     },
     data: () => ({
+      createClock: false,
+      auctionEndDateTime: '',
       snackbarColor: '',
       snackbarMessage: '',
       showSnackbar: false,
-      bidPrice: '',
+      bidPrice: 0,
       showBidHistory: false,
       overlay: false,
       opacity: 0.75,
       auctionEnded: false,
-      item: {
-        id: 125,
-        title: 'Article name',
-        description: 'Article description made by the admin',
-        imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-        price: '18',
-        bids: [
-          {
-            createdBy: 'user1',
-            price: '6',
-            dateTime: '2020/08/01 15:00'
-          },
-          {
-            createdBy: 'user2',
-            price: '8',
-            dateTime: '2020/08/02 16:30'
-          },
-          {
-            createdBy: 'user3',
-            price: '15',
-            dateTime: '2020/08/04 03:32'
-          },
-          {
-            createdBy: 'user4',
-            price: '18',
-            dateTime: '2020/08/05 23:14'
-          }
-        ]
-      }
+      item: {}
     }),
     props: ['id'],
     created() {
@@ -134,9 +109,33 @@
       if (store.getters.username === 'admin') {
         this.auctionEnded = true;
       }
-      this.bidPrice = this.minimunPrice;
+      this.initialize();
     },
     methods: {
+      initialize() {
+        this.getItemInfo();
+      },
+      getItemInfo() {
+        axios.get(`item?id=${this.id}`).then((response) => {
+          this.item = response.data[0];
+          if (this.item.auctionEndDateTime <= this.getStringDate()) {
+            this.auctionEnded = true;
+          }
+          this.getItemBids();
+          this.auctionEndDateTime = this.item.auctionEndDateTime;
+          this.createClock = true;
+        }).catch((error) => {
+          this.showMessage('Error. Try again later.', 'error');
+        });
+      },
+      getItemBids() {
+        axios.get(`bid?itemId=${this.id}`).then((response) => {
+          this.item.bids = response.data;
+          this.bidPrice = this.minimunPrice;
+        }).catch((error) => {
+          this.showMessage('Error. Try again later.', 'error');
+        });
+      },
       closeBidHistory() {
         this.showBidHistory = false;
       },
@@ -155,20 +154,31 @@
           hour = ('0' + hour).slice(-2);
           let minutes = now.getMinutes();
           minutes = ('0' + minutes).slice(-2);
-          return `${year}/${month}/${day} ${hour}:${minutes}`;
+          let seconds = now.getSeconds();
+          seconds = ('0' + seconds).slice(-2);
+          return `${year}-${month}-${day} ${hour}:${minutes}:${seconds}`;
       },
       submitBid() {
         if (this.validForm()) {
           const now = this.getStringDate();
-          const newBid = {
-            createdBy: store.getters.username,
-            price: this.bidPrice,
-            dateTime: now
-          };
-          this.showMessage('BID MADE! Great choice!', 'success');
-          this.item.price = this.bidPrice;
-          this.bidPrice = this.minimunPrice;
-          this.item.bids.push(newBid);
+          const params = new URLSearchParams();
+          params.append('createdBy', store.getters.username);
+          params.append('price', this.bidPrice);
+          params.append('createdAt', now);
+          params.append('itemId', this.id);
+          axios.post('/bid', params).then((response) => {
+            this.item.bids.push({
+              createdBy: store.getters.username,
+              price: this.bidPrice,
+              createdAt: now,
+              itemId: this.id
+            });
+            this.item.price = this.bidPrice;
+            this.bidPrice++;
+            this.showMessage('BID MADE! Great choice!', 'success');
+          }).catch((error) => {
+            this.showMessage('Error. Try again later.', 'error');
+          });
         }
       },
       validForm() {
