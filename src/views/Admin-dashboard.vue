@@ -52,7 +52,7 @@
                         <h3 class='mb-2'>Image:</h3>
                         <img :src="editedItem.imgSrc" class="image" v-if="!previewImage"/>
                         <img :src="previewImageUrl" class="image" v-if="previewImage"/>
-                        <input type="file" accept="image/jpeg" @change='uploadImage($event)' class='mb-2'>
+                        <input ref='fileUploader' type="file" accept="image/jpeg" @change='uploadImage($event)' class='mb-2'>
                       </v-col>
                       <v-col cols="12">
                         <v-menu
@@ -141,42 +141,47 @@
             mdi-delete
           </v-icon>
         </template>
-        <template v-slot:no-data>
-          <v-btn color="primary" @click="initialize">Reset</v-btn>
-        </template>
       </v-data-table>
     </v-main>
+    <Snackbar
+      @closeSnackbar='showSnackbar = false'
+      :textToShow='snackbarMessage'
+      :color='snackbarColor'
+      v-if="showSnackbar"
+    />
   </v-app>
 </template>
 
 <script>
   import store from '@/store'
   import LoggedAppBar from '@/components/Logged-app-bar.vue'
+  import Snackbar from '@/components/Snackbar.vue'
+  const axios = require('axios');
 
   export default {
     name: 'Admin-dashboard',
     components: {
-      LoggedAppBar
+      LoggedAppBar,
+      Snackbar
     },
     data: () => ({
+      snackbarMessage: '',
+      snackbarColor: '',
+      showSnackbar: false,
       menu2: false,
       previewImage: false,
       previewImageUrl: null,
       time: null,
-      timeMenu: false,
-      modal2: false,
       date: new Date().toISOString().substr(0, 10),
       menu: false,
-      modal: false,
       dialog: false,
       headers: [
         {text: 'Title', align: 'start', value: 'title'},
         {text: 'Description', value: 'description'},
-        {text: 'Image', value: 'imgSrc'},
-        {text: 'Auction endtime', value: 'auctionEndTime'},
+        {text: 'Image', value: 'imgSrc', sortable: false},
+        {text: 'Auction endtime', value: 'auctionEndDateTime'},
         {text: 'Actions', value: 'actions', sortable: false},
       ],
-      desserts: [],
       items: [],
       editedIndex: -1,
       editedItem: {
@@ -185,7 +190,7 @@
         description: '',
         imgSrc: '',
         auctionEndDate: '',
-        auctionEndTime: ''
+        auctionEndDateTime: ''
       },
       defaultItem: {
         id: null,
@@ -193,7 +198,7 @@
         description: '',
         imgSrc: '',
         auctionEndDate: '',
-        auctionEndTime: ''
+        auctionEndDateTime: ''
       },
     }),
     computed: {
@@ -221,156 +226,37 @@
           const image = e.target.files[0];
           const reader = new FileReader();
           reader.readAsDataURL(image);
-          reader.onload = e =>{
+          reader.onload = e => {
             this.previewImageUrl = e.target.result;
             this.previewImage = true;
           };
       },
+      getItems() {
+        axios.get('/item').then((response) => {
+          this.items = response.data;
+        }).catch((error) => {
+          this.showSnackbar = true;
+        });
+      },
       initialize () {
-        this.items = [
-          {
-            id: 100,
-            title: 'Supermodel',
-            description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-            imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-            auctionEndTime: '2020-08-05 15:30'
-          },
-          {
-            id: 101,
-            title: 'Halcyon Days',
-            description: 'Ellie Goulding',
-            imgSrc: 'https://cdn.vuetifyjs.com/images/cards/halcyon.png',
-            auctionEndTime: '2020-08-05 15:30'
-          },
-          {
-            id: 103,
-            title: 'Supermodel',
-            description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-            imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-            auctionEndTime: '2020-08-05 15:30'
-          },
-          {
-            id: 105,
-            title: 'Supermodel',
-            description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-            imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-            auctionEndTime: '2020-08-05 15:30'
-          },
-          {
-            id: 107,
-            title: 'Supermodel',
-            description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-            imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-            auctionEndTime: '2020-08-05 15:30'
-          },
-          {
-            id: 110,
-            title: 'Supermodel',
-            description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-            imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-            auctionEndTime: '2020-08-05 15:30'
-          },
-          {
-            id: 126,
-            title: 'Supermodel',
-            description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-            imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-            auctionEndTime: '2020-08-05 15:30'
-          },
-          {
-            id: 127,
-            title: 'Supermodel',
-            description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-            imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-            auctionEndTime: '2020-08-05 15:30'
-          },
-          {
-            id: 128,
-            title: 'Supermodel',
-            description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-            imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-            auctionEndTime: '2020-08-05 15:30'
-          },
-          {
-            id: 129,
-            title: 'Supermodel',
-            description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-            imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-            auctionEndTime: '2020-08-05 15:30'
-          },
-          {
-            id: 130,
-            title: 'Supermodel',
-            description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-            imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-            auctionEndTime: '2020-08-05 15:30'
-          },
-          {
-            id: 131,
-            title: 'Supermodel',
-            description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-            imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-            auctionEndTime: '2020-08-05 15:30'
-          },
-          {
-            id: 132,
-            title: 'Supermodel',
-            description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-            imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-            auctionEndTime: '2020-08-05 15:30'
-          },
-          {
-            id: 133,
-            title: 'Supermodel',
-            description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-            imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-            auctionEndTime: '2020-08-05 15:30'
-          },
-          {
-            id: 134,
-            title: 'Supermodel',
-            description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-            imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-            auctionEndTime: '2020-08-05 15:30'
-          },
-          {
-            id: 135,
-            title: 'Supermodel',
-            description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-            imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-            auctionEndTime: '2020-08-05 15:30'
-          },
-          {
-            id: 137,
-            title: 'Supermodel',
-            description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-            imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-            auctionEndTime: '2020-08-05 15:30'
-          },
-          {
-            id: 138,
-            title: 'Supermodel',
-            description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-            imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-            auctionEndTime: '2020-08-05 15:30'
-          },
-          {
-            id: 140,
-            title: 'Supermodel',
-            description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-            imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-            auctionEndTime: '2020-08-05 15:30'
-          },
-        ]
+        this.getItems();
       },
       editItem (item) {
         this.editedIndex = this.items.indexOf(item);
-        this.date = item.auctionEndTime.slice(0, 10);
-        this.time = item.auctionEndTime.slice(11, 16);
+        this.date = item.auctionEndDateTime.slice(0, 10);
+        this.time = item.auctionEndDateTime.slice(11, 16);
         this.editedItem = Object.assign({}, item);
         this.dialog = true;
       },
       deleteItem (item) {
+        const params = new URLSearchParams();
+          params.append('id', item.id);
+          params.append('_delete', '_delete');
+          axios.post('/item', params).then((response) => {
+            this.showMessage('Item deleted!', 'success');
+          }).catch((error) => {
+            this.showMessage('Error. Try again later.', 'error');
+          });
         const index = this.items.indexOf(item);
         confirm('Are you sure you want to delete this item?') && this.items.splice(index, 1);
       },
@@ -381,14 +267,72 @@
           this.editedIndex = -1;
         })
       },
-      save () {
-        if (this.editedIndex > -1) {
-          this.editedItem.auctionEndTime = this.date +  ' ' + this.time;
-          Object.assign(this.items[this.editedIndex], this.editedItem);
-        } else {
-          this.items.push(this.editedItem);
+      showMessage(messageToShow, messageType) {
+        this.snackbarMessage = messageToShow;
+        this.snackbarColor = messageType;
+        this.showSnackbar = true;
+      },
+      validForm() {
+        if (this.editedItem.title.trim() === '') {
+          this.showMessage('Please, provide a title.', 'error');
+          return false;
         }
-        this.close();
+        if (this.editedItem.description.trim() === '') {
+          this.showMessage('Please, provide a description.', 'error');
+          return false;
+        }
+        if (
+          (this.$refs.fileUploader.files.length === 0) && (this.editedItem.id === null)
+        ) {
+          this.showMessage('Please, select a image.', 'error');
+          return false;
+        }
+        if (this.date.trim() === '') {
+          this.showMessage('Please, provide a auction date.', 'error');
+          return false;
+        }
+        if (this.time.trim() === '') {
+          this.showMessage('Please, provide a auction time.', 'error');
+          return false;
+        }
+        return true;
+      },
+      createFormData() {
+        let formData = new FormData();
+        formData.append('file', this.$refs.fileUploader.files[0]);
+        formData.append('title', this.editedItem.title);
+        formData.append('description', this.editedItem.title);
+        formData.append('auctionEndDateTime', this.date + ' ' + this.time);
+        return formData;
+      },
+      makePost(formData) {
+        axios.post('/item', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }).then((response) => {
+          this.showMessage('Item updated!', 'success');
+          this.getItems();
+          this.previewImage = false;
+        }).catch((error) => {
+          this.showMessage('Error. Try again later.', 'error');
+        });
+      },
+      save () {
+        if (this.validForm()) {
+          if (this.editedIndex > -1) {
+            this.editedItem.auctionEndDateTime = this.date +  ' ' + this.time;
+            let formData = this.createFormData();
+            formData.append('id', this.editedItem.id);
+            formData.append('_put', '_put');
+            this.makePost(formData);
+            Object.assign(this.items[this.editedIndex], this.editedItem);
+          } else {
+            let formData = this.createFormData();
+            this.makePost(formData);
+          }
+          this.close();
+        }
       },
     },
   }
