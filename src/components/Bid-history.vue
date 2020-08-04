@@ -13,7 +13,7 @@
                   ${{bid.price}}
                 </v-card-title>
                 <v-card-text>
-                  <span style="font-weight: bold;">{{bid.dateTime}}hs</span> - <span style="font-style: italic;">{{bid.createdBy}}</span>
+                  <span style="font-weight: bold;">{{bid.createdAt}}hs</span> - <span style="font-style: italic;">{{bid.createdBy}}</span>
                 </v-card-text>
               </v-card>
             </v-timeline-item>
