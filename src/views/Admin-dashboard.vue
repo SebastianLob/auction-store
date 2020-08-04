@@ -301,7 +301,7 @@
         let formData = new FormData();
         formData.append('file', this.$refs.fileUploader.files[0]);
         formData.append('title', this.editedItem.title);
-        formData.append('description', this.editedItem.title);
+        formData.append('description', this.editedItem.description);
         formData.append('auctionEndDateTime', this.date + ' ' + this.time);
         return formData;
       },
