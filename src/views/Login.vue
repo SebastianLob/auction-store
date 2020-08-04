@@ -47,7 +47,7 @@
     <Snackbar
       @closeSnackbar='showSnackbar = false'
       :textToShow='"Invalid username or password. Please try again."'
-      :color='"#F44336"'
+      :color='"error"'
       v-if="showSnackbar"
     />
   </v-app>
