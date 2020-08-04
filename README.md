@@ -1,18 +1,18 @@
 # auction-store
 
-## Project setup
+## Requirements: install NODE
+```
+Download URL: https://nodejs.org/
+```
+
+### Project setup (install project dependences)
 ```
 npm install
 ```
 
-### Compiles and hot-reloads for development
+### Compiles and hot-reloads for development and local running
 ```
 npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
 ```
 
 ### Customize configuration
