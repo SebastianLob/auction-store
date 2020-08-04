@@ -15,7 +15,7 @@
                 <template v-slot:append>
                   <v-tooltip bottom>
                     <template v-slot:activator="{on}">
-                      <v-icon v-on="on">mdi-magnify</v-icon>
+                      <v-icon :disabled='searching' @click='infoSearch()' v-on="on">mdi-magnify</v-icon>
                     </template>
                     Search
                   </v-tooltip>
@@ -44,6 +44,9 @@
                     <v-card-title class="black--text">
                       {{item.title}}
                     </v-card-title>
+                    <v-card-subtitle class="pb-0 black--text">
+                      {{item.description}}
+                    </v-card-subtitle>
                     <v-card-actions>
                       <v-btn color="transparent" elevation="5" class="black--text ml-2" @click='openDetails(item.id)'>
                         {{btnText}}
@@ -67,7 +70,7 @@
           v-model="page"
           :circle="circle"
           :disabled="disabled"
-          :length="length"
+          :length="paginationLength"
           :next-icon="nextIcon"
           :prev-icon="prevIcon"
           :page="page"
@@ -76,328 +79,115 @@
         ></v-pagination>
       </div>
     </v-main>
+    <Snackbar
+      @closeSnackbar='showSnackbar = false'
+      :textToShow='"Error. Try again later."'
+      :color='"error"'
+      v-if="showSnackbar"
+    />
   </v-app>
 </template>
 
 <script>
   import store from '@/store'
   import LoggedAppBar from '@/components/Logged-app-bar.vue'
+  import Snackbar from '@/components/Snackbar.vue'
+  const axios = require('axios');
 
   export default {
     name: 'Home',
     components: {
-      LoggedAppBar
+      LoggedAppBar,
+      Snackbar
     },
     data: () => ({
       searchFilter: '',
-      items: [
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '5'
-        },
-        {
-          id: 125,
-          title: 'Halcyon Days',
-          description: 'Ellie Goulding',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/halcyon.png',
-          price: '10'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '12'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '16'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '18'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '18'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '18'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '18'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '18'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '18'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '18'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '18'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '18'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '18'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '18'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '18'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '18'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '18'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '18'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '18'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '18'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '18'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '18'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '18'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '18'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '18'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '18'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '18'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '18'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '18'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '18'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '18'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '18'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '18'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '18'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '18'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '18'
-        },
-        {
-          id: 125,
-          title: 'Supermodel',
-          description: 'Foster the People asdasdasdasd asd asd s asdsasdasda',
-          imgSrc: 'https://cdn.vuetifyjs.com/images/cards/foster.jpg',
-          price: '18'
-        },
-        
-      ],
-        circle: false,
-        disabled: false,
-        nextIcon: 'mdi-chevron-right',
-        prevIcon: 'mdi-chevron-left',
-        page: 1,
-        totalVisible: 10,
+      items: [],
+      circle: false,
+      disabled: false,
+      nextIcon: 'mdi-chevron-right',
+      prevIcon: 'mdi-chevron-left',
+      page: 1,
+      totalVisible: 10,
+      paginationLength: 1,
+      infoFilter: false,
+      searching: false,
+      showSnackbar: false,
     }),
     created() {
       if (!store.getters.userIsLogged && this.$route.path !== '/login') {
         this.$router.push('login');
       }
+      this.initialize();
     },
     computed: {
-      userOptions() {
-        const items = [{title: 'Logout', action:'logout'}];
-        if (store.getters.username === 'admin') {
-          items.unshift({title: 'Admin Dashboard', action:'adminDashboard'});
-        }
-        return items;
-      },
-      length() {
-        const itemsSize = this.items.length;
-        const pagesNumber = Math.ceil(itemsSize/10);
-        return pagesNumber;
-      },
       btnText() {
         return store.getters.username === 'admin'
           ? 'See details'
           : 'Bid now';
       }
     },
+    watch: {
+      page(val) {
+        const offset = (val-1)*10;
+        this.getRecords(offset);
+      },
+    },
     methods: {
+      infoSearch() {
+        this.page = 1;
+        this.searching = true;
+        this.infoFilter = true;
+        this.searchFilter = this.searchFilter.trim();
+        let url = `/item?info=${this.searchFilter}&limit=10`;
+        const orderByPriceDESC = this.$refs.priceOrderIcon.$el.classList.contains('mdi-arrow-up');
+        if (orderByPriceDESC) {
+          url = url + '&orderByPrice=DESC';
+        }
+        this.getRecords();
+        this.setPaginationNumbers(true);
+      },
       orderByPrice() {
         this.$refs.priceOrderIcon.$el.classList.toggle('mdi-arrow-down');
         this.$refs.priceOrderIcon.$el.classList.toggle('mdi-arrow-up');
-        // this.items.sort((a, b) => {
-        //   const ascOrder = this.$refs.priceOrderIcon.$el.classList.contains('mdi-arrow-down');
-        //   return ascOrder ? parseInt(a.price) - parseInt(b.price) : parseInt(b.price) - parseInt(a.price);
-        // });
+        this.getRecords();
+      },
+      initialize() {
+        this.setPaginationNumbers();
+        this.getRecords(0, false);
+      },
+      getRecords(offset = 0, validateLimit = true) {
+        this.searching = true;
+        let url = '/item?limit=10'+ '&offset=' + offset;
+        if (this.infoFilter) {
+          url = url + '&info=' + this.searchFilter;
+        }
+        if (validateLimit) {
+          const orderByPriceDESC = this.$refs.priceOrderIcon.$el.classList.contains('mdi-arrow-up');
+          if (orderByPriceDESC) {
+            url = url + '&orderByPrice=DESC';
+          }
+        }
+        axios.get(url).then((response) => {
+          this.items = response.data;
+        }).catch((error) => {
+          this.showSnackbar = true;
+        }).finally(() => {
+          this.searching = false;
+        });
+      },
+      setPaginationNumbers(infoSearching = false) {
+        let url = '/item';
+        if (infoSearching) {
+          url = url +'?info=' + this.searchFilter.trim();
+        }
+        axios.get(url).then((response) => {
+          const itemsSize = response.data.length;
+          const pagesNumber = Math.ceil(itemsSize/10);
+          this.paginationLength = pagesNumber === 0 ? 1 : pagesNumber;
+        }).catch((error) => {
+          this.showSnackbar = true;
+        });
       },
       openDetails(id) {
         this.$router.push(`details/${id}`);
